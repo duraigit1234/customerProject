@@ -1,10 +1,10 @@
-package scala.notebook
+package notebook
 
 import org.apache.spark.sql.types.{IntegerType, StringType, StructType}
 import org.apache.spark.sql.{DataFrame, SparkSession,Row}
 
-import scala.notebook.{CustomerData, GeoLocationData, OrdersData, OrdersItemData, PaymentsData, ProductCategoryData, ProductsData, ReviewsData, SellerData}
-import scala.utills.CustomerUtills
+import notebook.{CustomerData, GeoLocationData, OrdersData, OrdersItemData, PaymentsData, ProductCategoryData, ProductsData, ReviewsData, SellerData}
+import utills.CustomerUtills
 
 object MainSparkDriver {
 

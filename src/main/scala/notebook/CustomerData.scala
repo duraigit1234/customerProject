@@ -1,12 +1,15 @@
-package scala.notebook
+package notebook
 
 import org.apache.spark.sql.types.{IntegerType, StringType, StructType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import scala.utills.CustomerUtills
+import utills.CustomerUtills
 
 object CustomerData {
 
   val path = "src/main/resources/Customers.csv"
+  val SourcePath = "/user/cloudera/data/source_data/customers"
+  val Outputpath = "/user/cloudera/data/staging/customers"
+
   val customerSchema = new StructType()
     .add("customer_id", StringType)
     .add("customer_unique_id", StringType)
@@ -15,7 +18,8 @@ object CustomerData {
     .add("customer_state", StringType)
 
   def readCustomerData(spark: SparkSession, formate: String, header: Boolean): DataFrame = {
-    val df = CustomerUtills.readFile(spark, path, formate, customerSchema, header)
+    val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
+    CustomerUtills.writeFile(df,Outputpath)
     df
   }
 

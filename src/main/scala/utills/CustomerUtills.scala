@@ -1,4 +1,4 @@
-package scala.utills
+package utills
 
 import org.apache.spark.sql.types.{StringType,StructType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
