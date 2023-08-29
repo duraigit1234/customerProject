@@ -5,6 +5,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession,Row}
 
 import notebook.{CustomerData, GeoLocationData, OrdersData, OrdersItemData, PaymentsData, ProductCategoryData, ProductsData, ReviewsData, SellerData}
 import utills.CustomerUtills
+import notebook.StagingData
 
 object MainSparkDriver {
 
@@ -16,33 +17,35 @@ object MainSparkDriver {
       .getOrCreate()
     spark.conf.set("spark.sql.legacy.timeParserPolicy","LEGACY")
 
+    StagingData.get_result_table(spark)
+
+
       import spark.implicits._
 
-    val schema = new StructType()
-      .add("name", StringType)
-      .add("department", StringType)
-      .add("salary", IntegerType)
+//    val schema = new StructType()
+//      .add("name", StringType)
+//      .add("department", StringType)
+//      .add("salary", IntegerType)
 
+//    val data = Seq(
+//      ("Alice", "HR", 50000),
+//      ("Bob", "null", 20000),
+//     ("null", "Sales", 60000)
+//    )
+//
+//    val rdd = data.toDF("name","department","salary")
+//    val removednulldf = CustomerUtills.replaceStringNull(rdd)
+//    removednulldf.show()
 
-    val data = Seq(
-      ("Alice", "HR", 50000),
-      ("Bob", "null", 20000),
-     ("null", "Sales", 60000)
-    )
-
-    val rdd = data.toDF("name","department","salary")
-    val removednulldf = CustomerUtills.replaceStringNull(rdd)
-    removednulldf.show()
-
-    val customerDF = CustomerData.readCustomerData(spark, "csv", true)
-    val geo_locDF = GeoLocationData.readLocatinData(spark, "csv", true)
-    val order_itemDF = OrdersItemData.readOrderItemData(spark, "csv", true)
-    val orderDF = OrdersData.readOrderData(spark, "csv", true)
-    val paymentDF = PaymentsData.readPaymentData(spark, "csv", true)
-    val productDF = ProductsData.readProductsData(spark, "csv", true)
-    val categoryDF = ProductCategoryData.readCategoryData(spark, "csv", true)
-    val reviewDF = ReviewsData.readReviewData(spark, "csv", true)
-    val sellerDF = SellerData.readSellerData(spark, "csv", true)
+//    val customerDF = CustomerData.readCustomerData(spark, "csv", true)
+//    val geo_locDF = GeoLocationData.readLocatinData(spark, "csv", true)
+//    val order_itemDF = OrdersItemData.readOrderItemData(spark, "csv", true)
+//    val orderDF = OrdersData.readOrderData(spark, "csv", true)
+//    val paymentDF = PaymentsData.readPaymentData(spark, "csv", true)
+//    val productDF = ProductsData.readProductsData(spark, "csv", true)
+//    val categoryDF = ProductCategoryData.readCategoryData(spark, "csv", true)
+//    val reviewDF = ReviewsData.readReviewData(spark, "csv", true)
+//    val sellerDF = SellerData.readSellerData(spark, "csv", true)
 
 //    reviewDF.show()
 
@@ -60,11 +63,6 @@ object MainSparkDriver {
 //    categoryDF.show()
 //    reviewDF.show()
 //    sellerDF.show()
-
-
-
-
-
 
 
   }

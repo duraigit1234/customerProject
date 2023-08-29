@@ -6,7 +6,7 @@ import utills.CustomerUtills
 
 object GeoLocationData {
 
-  val read_path = "src/main/resources/GeoLocation.csv"
+  val path = "src/main/resources/GeoLocation.csv"
   val SourcePath = "/user/cloudera/data/source_data/geolocations"
   val Outputpath = "/user/cloudera/data/staging/geolocations"
   val customerSchema = new StructType()

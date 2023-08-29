@@ -40,10 +40,9 @@ object CustomerUtills {
     try {
       if (data.isEmpty) {
         println("The DataFrame is empty.")
-
       } else {
         //data.write.format("parquet").save(path)
-        data.write.option("header", "true").csv(path)
+        data.write.format("parquet").save(path)
         println("Data written successfully.")
       }
 

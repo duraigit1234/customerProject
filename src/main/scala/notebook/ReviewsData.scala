@@ -9,7 +9,7 @@ object ReviewsData {
 
   val path = "src/main/resources/OrderReviews.csv"
   val SourcePath = "/user/cloudera/data/source_data/order_reviews"
-  val Outputpath = "/user/cloudera/data/staging/customers/order_reviews"
+  val Outputpath = "/user/cloudera/data/staging/order_reviews"
   val customerSchema = new StructType()
     .add("review_id",StringType)
     .add("order_id", StringType)

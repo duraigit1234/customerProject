@@ -8,7 +8,7 @@ object SellerData {
 
   val path = "src/main/resources/Sellers.csv"
   val SourcePath = "/user/cloudera/data/source_data/sellers"
-  val Outputpath = "/user/cloudera/data/staging/customers/sellers"
+  val Outputpath = "/user/cloudera/data/staging/sellers"
   val customerSchema = new StructType()
     .add("seller_id", StringType)
     .add("seller_zip_code_prefix", IntegerType)
