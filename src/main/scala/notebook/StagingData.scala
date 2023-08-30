@@ -8,36 +8,43 @@ object StagingData {
 
   val output_path = "/user/cloudera/data/consolidated/order_information"
 
+  val order_payment_path = "/user/cloudera/data/staging/order_payments"
+  val customers_path = "/user/cloudera/data/staging/customers"
+  val geo_location_path = "/user/cloudera/data/staging/geolocations"
+  val orders_path = "/user/cloudera/data/staging/orders"
+  val order_item_path = "/user/cloudera/data/staging/order_items"
+  val product_category_path = "/user/cloudera/data/staging/product_category_name_translation"
+  val product_path = "/user/cloudera/data/staging/products"
+  val review_path = "/user/cloudera/data/staging/order_reviews"
+  val seller_path = "/user/cloudera/data/staging/sellers"
+
   def get_result_table(spark:SparkSession):Unit={
-    val customerDF = CustomerData.readCustomerData(spark, "csv", true)
-    val geo_locDF = GeoLocationData.readLocatinData(spark, "csv", true)
-    val order_itemDF = OrdersItemData.readOrderItemData(spark, "csv", true)
-    val orderDF = OrdersData.readOrderData(spark, "csv", true)
-    val paymentDF = PaymentsData.readPaymentData(spark, "csv", true)
-    val productDF = ProductsData.readProductsData(spark, "csv", true)
-    val categoryDF = ProductCategoryData.readCategoryData(spark, "csv", true)
-    val reviewDF = ReviewsData.readReviewData(spark, "csv", true)
-    val sellerDF = SellerData.readSellerData(spark, "csv", true)
+
+    val customerDF = CustomerUtills.readFile(spark, customers_path)
+    val geo_locDF = CustomerUtills.readFile(spark, geo_location_path)
+    val order_itemDF = CustomerUtills.readFile(spark, order_item_path)
+    val orderDF = CustomerUtills.readFile(spark, orders_path)
+    val paymentDF = CustomerUtills.readFile(spark, order_payment_path)
+    val productDF = CustomerUtills.readFile(spark, product_path)
+    val categoryDF = CustomerUtills.readFile(spark, product_category_path)
+    val reviewDF = CustomerUtills.readFile(spark, review_path)
+    val sellerDF = CustomerUtills.readFile(spark, seller_path)
 
     val joinsdata = orderDF.join(customerDF,orderDF("customer_id") === customerDF("customer_id"))
       .join(order_itemDF,orderDF("order_id") === order_itemDF("order_id"))
       .join(productDF,order_itemDF("product_id") === productDF("product_id"))
       .join(paymentDF,orderDF("order_id") === paymentDF("order_id"))
       .join(reviewDF,reviewDF("order_id") === orderDF("order_id"))
-
-
-  val result =  joinsdata.select(
+      .select(
       orderDF("order_id"),
-      customerDF("customer_id"),customerDF("customer_unique_id"),customerDF("customer_city"),customerDF("customer_state"),
+      customerDF("customer_id"), customerDF("customer_unique_id"), customerDF("customer_city"), customerDF("customer_state"),
       productDF("product_category_name"), productDF("product_name_length"),
-      order_itemDF("order_item"),order_itemDF("product_id"),order_itemDF("shipping_limit_date"),order_itemDF("price"),order_itemDF("freight_value"),
+      order_itemDF("order_item"), order_itemDF("product_id"), order_itemDF("shipping_limit_date"), order_itemDF("price"), order_itemDF("freight_value"),
       paymentDF("payment_value"),
       reviewDF("review_score")
     )
 
-    result.show()
-
-    CustomerUtills.writeFile(result,output_path)
+    CustomerUtills.writeFile(joinsdata,output_path)
 
   }
 

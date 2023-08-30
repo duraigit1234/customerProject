@@ -19,11 +19,11 @@ object ReviewsData {
     .add("review_creation_date", StringType)
     .add("review_answer_timestamp", StringType)
 
-  def readReviewData(spark: SparkSession, formate: String, header: Boolean): DataFrame = {
+  def readReviewData(spark: SparkSession, formate: String, header: Boolean): Unit = {
     val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
     val df1 = df.withColumn("review_creation_date",split(col("review_creation_date")," ").getItem(0))
       .withColumn("review_creation_date",to_date(col("review_creation_date"),"M/dd/yyyy"))
     CustomerUtills.writeFile(df1,Outputpath)
-    df1
+
   }
 }

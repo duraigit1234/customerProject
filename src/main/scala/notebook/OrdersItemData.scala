@@ -19,11 +19,11 @@ object OrdersItemData {
     .add("price", DoubleType)
     .add("freight_value", DoubleType)
 
-  def readOrderItemData(spark: SparkSession, formate: String, header: Boolean): DataFrame = {
+  def readOrderItemData(spark: SparkSession, formate: String, header: Boolean): Unit = {
     val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
     val df1 = df.withColumn("shipping_limit_date",to_date(split(col("shipping_limit_date")," ").getItem(0),"M/dd/yyyy"))
     CustomerUtills.writeFile(df1,Outputpath)
-    df1
+
   }
 
 }

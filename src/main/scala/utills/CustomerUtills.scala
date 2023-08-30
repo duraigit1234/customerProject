@@ -35,6 +35,30 @@ object CustomerUtills {
 
   }
 
+  def readFile(spark: SparkSession, path: String): DataFrame = {
+
+    try {
+
+      val df = spark.read.parquet(path)
+
+      if (df.isEmpty) {
+        println("The DataFrame is empty.")
+        spark.emptyDataFrame
+      } else {
+        df
+      }
+    } catch {
+      case ex: java.io.FileNotFoundException =>
+        println(s"FileNotFoundException: ${ex.getMessage}")
+        spark.emptyDataFrame
+      case ex: Exception =>
+        println(s"General Exception: ${ex.getMessage}")
+        spark.emptyDataFrame
+    }
+
+
+  }
+
   def writeFile(data:DataFrame,path:String)={
 
     try {
@@ -42,7 +66,7 @@ object CustomerUtills {
         println("The DataFrame is empty.")
       } else {
         //data.write.format("parquet").save(path)
-        data.write.format("parquet").save(path)
+        data.write.mode("overwrite").format("parquet").save(path)
         println("Data written successfully.")
       }
 

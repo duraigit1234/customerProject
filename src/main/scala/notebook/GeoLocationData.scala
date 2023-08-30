@@ -16,10 +16,10 @@ object GeoLocationData {
     .add("geolocation_city", StringType)
     .add("geolocation_state", StringType)
 
-  def readLocatinData(spark: SparkSession, formate: String, header: Boolean): DataFrame = {
+  def readLocatinData(spark: SparkSession, formate: String, header: Boolean): Unit = {
     val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
     CustomerUtills.writeFile(df,Outputpath)
-    df
+
   }
 
 

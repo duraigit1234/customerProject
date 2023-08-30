@@ -14,10 +14,10 @@ object ProductCategoryData {
     .add("product_category_name_english", StringType)
 
 
-  def readCategoryData(spark: SparkSession, formate: String, header: Boolean): DataFrame = {
+  def readCategoryData(spark: SparkSession, formate: String, header: Boolean): Unit = {
     val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
     CustomerUtills.writeFile(df,Outputpath)
-    df
+
   }
 
 }

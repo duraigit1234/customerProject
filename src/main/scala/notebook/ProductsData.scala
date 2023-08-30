@@ -21,10 +21,10 @@ object ProductsData {
     .add("product_width_cm", IntegerType)
 
 
-  def readProductsData(spark: SparkSession, formate: String, header: Boolean): DataFrame = {
+  def readProductsData(spark: SparkSession, formate: String, header: Boolean): Unit = {
     val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
     CustomerUtills.writeFile(df,Outputpath)
-    df
+
   }
 
 }

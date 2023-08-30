@@ -17,10 +17,10 @@ object CustomerData {
     .add("customer_city", StringType)
     .add("customer_state", StringType)
 
-  def readCustomerData(spark: SparkSession, formate: String, header: Boolean): DataFrame = {
+  def readCustomerData(spark: SparkSession, formate: String, header: Boolean): Unit = {
     val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
     CustomerUtills.writeFile(df,Outputpath)
-    df
+
   }
 
 }

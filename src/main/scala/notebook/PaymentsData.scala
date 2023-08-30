@@ -16,10 +16,10 @@ object PaymentsData {
     .add("payment_installments", IntegerType)
     .add("payment_value", DoubleType)
 
-  def readPaymentData(spark: SparkSession, formate: String, header: Boolean): DataFrame = {
+  def readPaymentData(spark: SparkSession, formate: String, header: Boolean): Unit = {
     val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
     CustomerUtills.writeFile(df,Outputpath)
-    df
+
   }
 
 }

@@ -21,7 +21,7 @@ object OrdersData {
     .add("order_deliver_customer_date", StringType)
     .add("order_estimated_delivery_date", StringType)
 
-  def readOrderData(spark: SparkSession, formate: String, header: Boolean): DataFrame = {
+  def readOrderData(spark: SparkSession, formate: String, header: Boolean): Unit = {
     val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
     val df1 = df.withColumn("order_purchase_timestamp",to_date(split(col("order_purchase_timestamp")," ").getItem(0),"M/dd/yyyy"))
                 .withColumn("order_approved_at",to_date(split(col("order_approved_at")," ").getItem(0),"M/dd/yyyy"))
@@ -30,7 +30,7 @@ object OrdersData {
                 .withColumn("order_estimated_delivery_date",to_date(split(col("order_estimated_delivery_date")," ").getItem(0),"M/dd/yyyy"))
 
         CustomerUtills.writeFile(df1,Outputpath)
-    df1
+
   }
 
 }
