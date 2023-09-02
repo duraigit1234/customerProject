@@ -20,15 +20,15 @@ object StagingData {
 
   def get_result_table(spark:SparkSession):Unit={
 
-    val customerDF = CustomerUtills.readFile(spark, customers_path)
-    val geo_locDF = CustomerUtills.readFile(spark, geo_location_path)
-    val order_itemDF = CustomerUtills.readFile(spark, order_item_path)
-    val orderDF = CustomerUtills.readFile(spark, orders_path)
-    val paymentDF = CustomerUtills.readFile(spark, order_payment_path)
-    val productDF = CustomerUtills.readFile(spark, product_path)
-    val categoryDF = CustomerUtills.readFile(spark, product_category_path)
-    val reviewDF = CustomerUtills.readFile(spark, review_path)
-    val sellerDF = CustomerUtills.readFile(spark, seller_path)
+    val customerDF = CustomerUtills.readFile(spark, customers_path,"parquet")
+    val geo_locDF = CustomerUtills.readFile(spark, geo_location_path,"parquet")
+    val order_itemDF = CustomerUtills.readFile(spark, order_item_path,"parquet")
+    val orderDF = CustomerUtills.readFile(spark, orders_path,"parquet")
+    val paymentDF = CustomerUtills.readFile(spark, order_payment_path,"parquet")
+    val productDF = CustomerUtills.readFile(spark, product_path,"parquet")
+    val categoryDF = CustomerUtills.readFile(spark, product_category_path,"parquet")
+    val reviewDF = CustomerUtills.readFile(spark, review_path,"parquet")
+    val sellerDF = CustomerUtills.readFile(spark, seller_path,"parquet")
 
     val joinsdata = orderDF.join(customerDF,orderDF("customer_id") === customerDF("customer_id"))
       .join(order_itemDF,orderDF("order_id") === order_itemDF("order_id"))
@@ -44,7 +44,7 @@ object StagingData {
       reviewDF("review_score")
     )
 
-    CustomerUtills.writeFile(joinsdata,output_path)
+//    CustomerUtills.writeFile(joinsdata,output_path,"parquet")
 
   }
 

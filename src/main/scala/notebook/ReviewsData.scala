@@ -23,7 +23,7 @@ object ReviewsData {
     val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
     val df1 = df.withColumn("review_creation_date",split(col("review_creation_date")," ").getItem(0))
       .withColumn("review_creation_date",to_date(col("review_creation_date"),"M/dd/yyyy"))
-    CustomerUtills.writeFile(df1,Outputpath)
+//    CustomerUtills.writeFile(df1,Outputpath,"parquet")
 
   }
 }

@@ -18,15 +18,17 @@ object MainSparkDriver {
     spark.conf.set("spark.sql.legacy.timeParserPolicy","LEGACY")
 
 
-    CustomerData.readCustomerData(spark, "csv", true)
-    GeoLocationData.readLocatinData(spark, "csv", true)
-    OrdersItemData.readOrderItemData(spark, "csv", true)
+//    CustomerData.readCustomerData(spark, "csv", true)
+//    GeoLocationData.readLocatinData(spark, "csv", true)
+//    OrdersItemData.readOrderItemData(spark, "csv", true)
     OrdersData.readOrderData(spark, "csv", true)
-    PaymentsData.readPaymentData(spark, "csv", true)
-    ProductsData.readProductsData(spark, "csv", true)
-    ProductCategoryData.readCategoryData(spark, "csv", true)
-    ReviewsData.readReviewData(spark, "csv", true)
-    SellerData.readSellerData(spark, "csv", true)
+//    PaymentsData.readPaymentData(spark, "csv", true)
+//    ProductsData.readProductsData(spark, "csv", true)
+//    ProductCategoryData.readCategoryData(spark, "csv", true)
+//    ReviewsData.readReviewData(spark, "csv", true)
+//    SellerData.readSellerData(spark, "csv", true)
+
+
 
 
   }
