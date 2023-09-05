@@ -1,25 +1,29 @@
 package notebook
 
-import notebook.OrdersData.Outputpath
+
 import org.apache.spark.sql.types.{DateType, DoubleType, IntegerType, LongType, StringType, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
 import utills.CustomerUtills
 import org.apache.hadoop.fs.{FileSystem, Path}
+import com.typesafe.config.ConfigFactory
 
 import java.io.File
 
 object OrdersData {
 
-//  val audit_table_path = "C://Users//SSLTP11358//Desktop//audit//audit_table.csv"
-//  val newfile = new File(audit_table_path)
-//  val exist_or_not = newfile.exists()
-//  val path = "src/main/resources/Orders.csv"
-//  val table_path = "C://Users//SSLTP11358//Desktop//target//orders.csv"
-  val SourcePath = "/user/cloudera/data/source_data/orders"
-  val Outputpath = "/user/cloudera/data/staging/orders"
-  val audit_table_path = "/user/cloudera/data/audit"
+  val conf = ConfigFactory.load()
+
+  val audit_table_path = conf.getString("path.audit_table_path")
+  val SourcePath = conf.getString("path.SourcePath")
+  val OutputPath = conf.getString("path.OutputPath")
+  val csvformate = conf.getString("dataformate.csvformate")
+  val parquetformate = conf.getString("dataformate.parquetformate")
+
+
+  val newfile = new File(audit_table_path)
+  val exist_or_not = newfile.exists()
 
   val audit_table_schema = new StructType()
     .add("Application_ID", StringType)
@@ -45,10 +49,10 @@ object OrdersData {
 
   def readOrderData(spark: SparkSession, formate: String, header: Boolean): Unit = {
 
-    val exist_or_not = testDirExist(spark,audit_table_path)
+//    val exist_or_not = testDirExist(spark,audit_table_path)
     val appid = spark.sparkContext.applicationId
         if (exist_or_not){
-         val existing_audit = CustomerUtills.readFile(spark,audit_table_path,"csv",audit_table_schema,true)
+         val existing_audit = CustomerUtills.readFile(spark,audit_table_path,csvformate,audit_table_schema,true)
           val table_exist_or_not = existing_audit.filter(col("Table_Name") === "orders").count() > 0
 
           if (table_exist_or_not){
@@ -57,25 +61,25 @@ object OrdersData {
               .where(col("Table_Name") === "orders" and col("row") === 1)
 
             val latest_load_date = rownum.select("Snap_Shot_Date").collect()(0)(0).toString
-            println(s"latest load Date $latest_load_date")
-            val filterdf = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header,filtercolumn = Some("order_purchase_timestamp"),filtercond = Some(latest_load_date))
-            val trans_fiterdata = transform_data(filterdf)
 
+            println(s"latest load Date $latest_load_date")
+            val filterdf = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
+            val   trans_fiterdata = transform_data(filterdataframe(filterdf,latest_load_date))
             try {
-              val newmaxDateDF = filterdf.agg(max("order_purchase_timestamp").alias("maxDate"))
+              val newmaxDateDF = trans_fiterdata.agg(max("order_purchase_timestamp").alias("maxDate"))
               val newmaxDateAsString = newmaxDateDF.collect()(0)(0).toString
               println(s"Maximum Date as String: $newmaxDateAsString")
               val newdatetimedf = spark.sql("SELECT CAST(current_timestamp() AS STRING) AS current_datetime")
               val newcurrentDateTimeAsString = newdatetimedf.collect()(0)(0).toString
 
-              CustomerUtills.writeFile(trans_fiterdata, Outputpath, "append", "csv")
-              val newcnt = filterdf.count()
+              val status = CustomerUtills.writeFile(trans_fiterdata, OutputPath, "append", parquetformate)
+              val newcnt = trans_fiterdata.count()
               val seqdata = Seq(
-                (appid, newcurrentDateTimeAsString, SourcePath, Outputpath, "orders", newcnt, newcnt, "success", "incremental load", newmaxDateAsString)
+                (appid, newcurrentDateTimeAsString, SourcePath, OutputPath, "orders", newcnt, newcnt, status, "incremental load", newmaxDateAsString)
               )
               val newauditDF = spark.createDataFrame(seqdata).toDF(audit_table_schema.fieldNames: _*)
 
-              CustomerUtills.writeFile(newauditDF, audit_table_path, "append", "csv")
+              CustomerUtills.writeFile(newauditDF, audit_table_path, "append", csvformate)
             } catch {
               case _: Throwable =>
                 println("No data available")
@@ -83,7 +87,7 @@ object OrdersData {
 
           }
           else {
-            val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
+            val df = CustomerUtills.readFile(spark, SourcePath, csvformate, customerSchema, header)
             val df1 = transform_data(df)
 
             val maxDateDF = df1.agg(max("order_purchase_timestamp").alias("maxDate"))
@@ -93,20 +97,20 @@ object OrdersData {
             val currentDateTimeAsString = datetimedf.collect()(0)(0).toString
 
 
-            CustomerUtills.writeFile(df1, Outputpath, "overwrite", "csv")
+          val status =  CustomerUtills.writeFile(df1, OutputPath, "overwrite", parquetformate)
             val cnt = df1.count()
             val seqdata = Seq(
-              (appid, currentDateTimeAsString, SourcePath, Outputpath, "orders", cnt, cnt, "success", "full load", maxDateAsString)
+              (appid, currentDateTimeAsString, SourcePath, OutputPath, "orders", cnt, cnt, status, "full load", maxDateAsString)
             )
             val emptyDF = spark.createDataFrame(seqdata).toDF(audit_table_schema.fieldNames: _*)
 
-            CustomerUtills.writeFile(emptyDF, audit_table_path, "append", "csv")
+            CustomerUtills.writeFile(emptyDF, audit_table_path, "append", csvformate)
           }
 
         }
         else{
 
-          val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
+          val df = CustomerUtills.readFile(spark, SourcePath, csvformate, customerSchema, header)
           val df1 = transform_data(df)
 
           val maxDateDF = df1.agg(max("order_purchase_timestamp").alias("maxDate"))
@@ -116,14 +120,14 @@ object OrdersData {
             val currentDateTimeAsString =datetimedf.collect()(0)(0).toString
 
 
-          CustomerUtills.writeFile(df1, Outputpath, "overwrite", "csv")
+          val status = CustomerUtills.writeFile(df1, OutputPath, "overwrite", parquetformate)
           val cnt = df1.count()
           val seqdata = Seq(
-            (appid,currentDateTimeAsString,SourcePath,Outputpath,"orders",cnt,cnt,"success","full load",maxDateAsString)
+            (appid,currentDateTimeAsString,SourcePath,OutputPath,"orders",cnt,cnt,status,"full load",maxDateAsString)
           )
         val emptyDF = spark.createDataFrame(seqdata).toDF(audit_table_schema.fieldNames:_*)
 
-          CustomerUtills.writeFile(emptyDF,audit_table_path,"append","csv")
+          CustomerUtills.writeFile(emptyDF,audit_table_path,"append",csvformate)
         }
 
 
@@ -143,6 +147,14 @@ object OrdersData {
       .withColumn("order_estimated_delivery_date", to_date(split(col("order_estimated_delivery_date"), " ").getItem(0), "M/dd/yyyy"))
       .withColumn("load_dtm", current_timestamp())
     df1
+  }
+  def filterdataframe(df:DataFrame,filtercond:String):DataFrame={
+    println("inside filtered dataframe")
+    val filterdate = to_date(lit(filtercond))
+    println(s"max date of audit table $filterdate")
+    val result = df.filter(to_date(split(col("order_purchase_timestamp"), " ").getItem(0), "M/dd/yyyy") > filterdate)
+    result.show()
+    result
   }
 
 }

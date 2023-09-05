@@ -6,14 +6,19 @@ import org.apache.spark.sql.{DataFrame, SparkSession,Row}
 import notebook.{CustomerData, GeoLocationData, OrdersData, OrdersItemData, PaymentsData, ProductCategoryData, ProductsData, ReviewsData, SellerData}
 import utills.CustomerUtills
 import notebook.StagingData
+import com.typesafe.config.ConfigFactory
 
 object MainSparkDriver {
 
   def main(args: Array[String]): Unit = {
 
+    val conf = ConfigFactory.load()
+    val appname = conf.getString("spark.appname")
+    val master = conf.getString("spark.master")
+
     val spark = SparkSession.builder()
-      .appName("Customer Data Project")
-      .master("local")
+      .appName(appname)
+      .master(master)
       .getOrCreate()
     spark.conf.set("spark.sql.legacy.timeParserPolicy","LEGACY")
 

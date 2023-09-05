@@ -16,29 +16,15 @@ object CustomerUtills {
 
     try {
 
-      val filteredDF = (filtercolumn, filtercond) match {
-        case (Some(filtercolumn), Some(filtercond)) =>
-          val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
-          val dateParam = dateFormat.parse(filtercond)
-            println(s"dateparam is $dateParam")
           val df = spark.read.format(formate).schema(schema)
             .option("header", header)
             .load(path)
-            .withColumn("order_purchase_timestamp", to_date(split(col("order_purchase_timestamp"), " ").getItem(0), "M/dd/yyyy"))
-            .filter(col("order_purchase_timestamp") > to_date(lit(filtercond)))
-          df
-        case (None, None) =>
-          val df = spark.read.format(formate).schema(schema)
-            .option("header", header)
-            .load(path)
-          df
-      }
 
-      if (filteredDF.isEmpty) {
+      if (df.isEmpty) {
         println("The DataFrame is empty.")
         spark.emptyDataFrame
       } else {
-        filteredDF
+       df
       }
     } catch {
       case ex: java.io.FileNotFoundException =>
@@ -76,29 +62,34 @@ object CustomerUtills {
 
   }
 
-  def writeFile(data:DataFrame,path:String,mode:String,formate:String)={
+  def writeFile(data:DataFrame,path:String,mode:String,formate:String):String={
 
     try {
       if (data.isEmpty) {
         println("The DataFrame is empty.")
+        "empty df"
       } else {
         //data.write.format("parquet").save(path)
         if (formate == "csv"){
           data.write.mode(mode).option("header",true).format(formate).save(path)
           println("Data written successfully.")
+
         }
         if (formate == "parquet") {
           data.write.mode("overwrite").format(formate).save(path)
           println("Data written successfully.")
-        }
 
+        }
+        "success"
       }
 
     } catch {
       case ex: java.io.IOException =>
         println(s"IOException: ${ex.getMessage}")
+        "failure"
       case ex: Exception =>
         println(s"General Exception: ${ex.getMessage}")
+        "failure"
     }
   }
 
