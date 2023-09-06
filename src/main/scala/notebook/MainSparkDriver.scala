@@ -12,7 +12,7 @@ object MainSparkDriver {
 
   def main(args: Array[String]): Unit = {
 
-    val conf = ConfigFactory.load()
+    val conf = ConfigFactory.load("application.conf")
     val appname = conf.getString("spark.appname")
     val master = conf.getString("spark.master")
 
@@ -26,6 +26,7 @@ object MainSparkDriver {
 //    CustomerData.readCustomerData(spark, "csv", true)
 //    GeoLocationData.readLocatinData(spark, "csv", true)
 //    OrdersItemData.readOrderItemData(spark, "csv", true)
+    println("OrdersData Going to Call")
     OrdersData.readOrderData(spark, "csv", true)
 //    PaymentsData.readPaymentData(spark, "csv", true)
 //    ProductsData.readProductsData(spark, "csv", true)
