@@ -22,8 +22,8 @@ object OrdersData {
   val parquetformate = conf.getString("dataformate.parquetformate")
 
 
-  val newfile = new File(audit_table_path)
-  val exist_or_not = newfile.exists()
+//  val newfile = new File(audit_table_path)
+//  val exist_or_not = newfile.exists()
 
   val audit_table_schema = new StructType()
     .add("Application_ID", StringType)
@@ -49,7 +49,8 @@ object OrdersData {
 
   def readOrderData(spark: SparkSession, formate: String, header: Boolean): Unit = {
 
-//    val exist_or_not = testDirExist(spark,audit_table_path)
+    val exist_or_not = testDirExist(spark,audit_table_path)
+    println("Path_Existance: " + exist_or_not)
     println("OrdersData Called")
     val appid = spark.sparkContext.applicationId
         if (exist_or_not){
