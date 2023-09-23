@@ -2,11 +2,13 @@ package notebook
 
 import org.apache.spark.sql.types.{DateType, DoubleType, IntegerType, StringType, StructType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import notebook.TableCreation.productTableCreation
 
 import utills.CustomerUtills
 object ProductsData {
 
   val path = "src/main/resources/Products.csv"
+  val tableName = "product"
   val SourcePath = "/user/cloudera/data/source_data/products"
   val Outputpath = "/user/cloudera/data/staging/products"
   val customerSchema = new StructType()
@@ -22,6 +24,7 @@ object ProductsData {
 
 
   def readProductsData(spark: SparkSession, formate: String, header: Boolean): Unit = {
+    TableCreation.productTableCreation(spark,Outputpath,tableName)
     val df = CustomerUtills.readFile(spark, SourcePath, formate, customerSchema, header)
 //    CustomerUtills.writeFile(df,Outputpath,"parquet")
 
