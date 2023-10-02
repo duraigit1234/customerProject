@@ -8,6 +8,7 @@ import org.apache.spark.sql.functions._
 import utills.CustomerUtills
 import org.apache.hadoop.fs.{FileSystem, Path}
 import com.typesafe.config.ConfigFactory
+import notebook.GetHiveTable
 
 import java.io.File
 
@@ -15,9 +16,11 @@ object OrdersData {
 
   val conf = ConfigFactory.load()
 
+
   val audit_table_path = conf.getString("path.audit_table_path")
   val SourcePath = conf.getString("path.SourcePath")
   val OutputPath = conf.getString("path.OutputPath")
+  val tableName = conf.getString("tablename.orders")
   val csvformate = conf.getString("dataformate.csvformate")
   val parquetformate = conf.getString("dataformate.parquetformate")
 
@@ -48,7 +51,7 @@ object OrdersData {
     .add("order_estimated_delivery_date", StringType)
 
   def readOrderData(spark: SparkSession, formate: String, header: Boolean): Unit = {
-
+  GetHiveTable.get_orders_table(spark,tableName,OutputPath)
 //    val exist_or_not = testDirExist(spark,audit_table_path)
     val appid = spark.sparkContext.applicationId
         if (exist_or_not){
@@ -72,7 +75,7 @@ object OrdersData {
               val newdatetimedf = spark.sql("SELECT CAST(current_timestamp() AS STRING) AS current_datetime")
               val newcurrentDateTimeAsString = newdatetimedf.collect()(0)(0).toString
 
-              val status = CustomerUtills.writeFile(trans_fiterdata, OutputPath, "append", parquetformate)
+              val status = CustomerUtills.writeFile(trans_fiterdata, OutputPath, "append", csvformate)
               val newcnt = trans_fiterdata.count()
               val seqdata = Seq(
                 (appid, newcurrentDateTimeAsString, SourcePath, OutputPath, "orders", newcnt, newcnt, status, "incremental load", newmaxDateAsString)
@@ -96,8 +99,7 @@ object OrdersData {
             val datetimedf = spark.sql("SELECT CAST(current_timestamp() AS STRING) AS current_datetime")
             val currentDateTimeAsString = datetimedf.collect()(0)(0).toString
 
-
-          val status =  CustomerUtills.writeFile(df1, OutputPath, "overwrite", parquetformate)
+          val status =  CustomerUtills.writeFile(df1, OutputPath, "overwrite", csvformate)
             val cnt = df1.count()
             val seqdata = Seq(
               (appid, currentDateTimeAsString, SourcePath, OutputPath, "orders", cnt, cnt, status, "full load", maxDateAsString)
@@ -120,7 +122,7 @@ object OrdersData {
             val currentDateTimeAsString =datetimedf.collect()(0)(0).toString
 
 
-          val status = CustomerUtills.writeFile(df1, OutputPath, "overwrite", parquetformate)
+          val status = CustomerUtills.writeFile(df1, OutputPath, "overwrite", csvformate)
           val cnt = df1.count()
           val seqdata = Seq(
             (appid,currentDateTimeAsString,SourcePath,OutputPath,"orders",cnt,cnt,status,"full load",maxDateAsString)
