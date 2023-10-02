@@ -25,8 +25,8 @@ object OrdersData {
   val parquetformate = conf.getString("dataformate.parquetformate")
 
 
-  val newfile = new File(audit_table_path)
-  val exist_or_not = newfile.exists()
+//  val newfile = new File(audit_table_path)
+//  val exist_or_not = newfile.exists()
 
   val audit_table_schema = new StructType()
     .add("Application_ID", StringType)
@@ -53,6 +53,10 @@ object OrdersData {
   def readOrderData(spark: SparkSession, formate: String, header: Boolean): Unit = {
   GetHiveTable.get_orders_table(spark,tableName,OutputPath)
 //    val exist_or_not = testDirExist(spark,audit_table_path)
+
+    val exist_or_not = testDirExist(spark,audit_table_path)
+    println("Path_Existance: " + exist_or_not)
+    println("OrdersData Called")
     val appid = spark.sparkContext.applicationId
         if (exist_or_not){
          val existing_audit = CustomerUtills.readFile(spark,audit_table_path,csvformate,audit_table_schema,true)
@@ -142,11 +146,11 @@ object OrdersData {
   }
 
   def transform_data(data:DataFrame):DataFrame={
-    val df1 = data.withColumn("order_purchase_timestamp", to_date(split(col("order_purchase_timestamp"), " ").getItem(0), "M/dd/yyyy"))
-      .withColumn("order_approved_at", to_date(split(col("order_approved_at"), " ").getItem(0), "M/dd/yyyy"))
-      .withColumn("order_delivered_carrier_date", to_date(split(col("order_delivered_carrier_date"), " ").getItem(0), "M/dd/yyyy"))
-      .withColumn("order_deliver_customer_date", to_date(split(col("order_deliver_customer_date"), " ").getItem(0), "M/dd/yyyy"))
-      .withColumn("order_estimated_delivery_date", to_date(split(col("order_estimated_delivery_date"), " ").getItem(0), "M/dd/yyyy"))
+    val df1 = data.withColumn("order_purchase_timestamp", to_date(split(col("order_purchase_timestamp"), " ").getItem(0), "yyyy-MM-dd"))
+      .withColumn("order_approved_at", to_date(split(col("order_approved_at"), " ").getItem(0), "yyyy-MM-dd"))
+      .withColumn("order_delivered_carrier_date", to_date(split(col("order_delivered_carrier_date"), " ").getItem(0), "yyyy-MM-dd"))
+      .withColumn("order_deliver_customer_date", to_date(split(col("order_deliver_customer_date"), " ").getItem(0), "yyyy-MM-dd"))
+      .withColumn("order_estimated_delivery_date", to_date(split(col("order_estimated_delivery_date"), " ").getItem(0), "yyyy-MM-dd"))
       .withColumn("load_dtm", current_timestamp())
     df1
   }
@@ -154,7 +158,7 @@ object OrdersData {
     println("inside filtered dataframe")
     val filterdate = to_date(lit(filtercond))
     println(s"max date of audit table $filterdate")
-    val result = df.filter(to_date(split(col("order_purchase_timestamp"), " ").getItem(0), "M/dd/yyyy") > filterdate)
+    val result = df.filter(to_date(split(col("order_purchase_timestamp"), " ").getItem(0), "yyyy-MM-dd") > filterdate)
     result.show()
     result
   }
