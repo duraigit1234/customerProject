@@ -121,4 +121,8 @@ object GetHiveTable {
                 |      LOCATION '$path'""".stripMargin)
   }
 
+ def get_dummy_table():Unit= {
+  Println("")
+ }
+
 }
