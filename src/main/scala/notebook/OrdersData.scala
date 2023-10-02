@@ -18,8 +18,8 @@ object OrdersData {
 
 
   val audit_table_path = conf.getString("path.audit_table_path")
-  val SourcePath = conf.getString("path.SourcePath")
-  val OutputPath = conf.getString("path.OutputPath")
+  val SourcePath = conf.getString("path.OrdersSourcePath")
+  val OutputPath = conf.getString("path.OrdersOutputpath")
   val tableName = conf.getString("tablename.orders")
   val csvformate = conf.getString("dataformate.csvformate")
   val parquetformate = conf.getString("dataformate.parquetformate")
